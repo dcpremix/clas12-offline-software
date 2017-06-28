@@ -33,6 +33,8 @@ services:
     name: EBHB
   - class: org.jlab.service.eb.EBTBEngine
     name: EBTB
+  - class: org.jlab.service.rtpc.RTPCEngine
+    name: RTPC
 configuration:
   io-services:
     writer:
