@@ -30,7 +30,7 @@
         <section name="dgtz" tag="1702" num="0" info="Digitized information">
             <column name="CellID" type="int32"    num="1" info="Pad CellId" />
             <column name="ADC"    type="float64"  num="2" info="adc" />
-            <column name="Time"    type="float64"  num="3" info="tdc" />
+            <column name="Time"   type="float64"  num="3" info="tdc" />
             <column name="hitn"   type="int32"    num="4" info="Hit Number" />
         </section>
     </bank>
