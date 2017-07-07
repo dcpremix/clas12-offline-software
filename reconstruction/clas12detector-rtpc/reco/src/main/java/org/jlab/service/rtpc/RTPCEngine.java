@@ -14,6 +14,7 @@ import org.jlab.rec.rtpc.banks.HitReader;
 import org.jlab.rec.rtpc.banks.RecoBankWriter;
 import org.jlab.rec.rtpc.hit.Hit;
 import org.jlab.rec.rtpc.hit.HitReconstruction;
+import org.jlab.rec.rtpc.hit.PadHit;
 
 public class RTPCEngine extends ReconstructionEngine{
 
@@ -41,9 +42,11 @@ public class RTPCEngine extends ReconstructionEngine{
 		if(hits.size()==0 ) {
 			return true;
 		}
-
-		HitReconstruction reco = new HitReconstruction();
+		PadHit phit = new PadHit();
+		phit.bonus_shaping(hits);
 		
+		HitReconstruction reco = new HitReconstruction();
+	
 		reco.Reco(hits);
 		
 		/*for(Hit h : hits) {
@@ -62,9 +65,9 @@ public class RTPCEngine extends ReconstructionEngine{
 	
 	public static void main(String[] args) throws FileNotFoundException, EvioException{
 		
-		String inputFile = "/Users/davidpayette/Desktop/coat4test/clara/installation/working.hipo";
+		String inputFile = "/Users/dpaye001/Desktop/clas12-offline-software-master/working.hipo";
 		//String inputFile = args[0];
-		String outputFile = "/Users/davidpayette/Desktop/coat4test/clara/installation/out_working.hipo";
+		String outputFile = "/Users/dpaye001/Desktop/clas12-offline-software-master/out_working.hipo";
 		
 		System.err.println(" \n[PROCESSING FILE] : " + inputFile);
 
