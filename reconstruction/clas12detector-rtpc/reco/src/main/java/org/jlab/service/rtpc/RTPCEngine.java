@@ -1,6 +1,8 @@
 package org.jlab.service.rtpc;
 
 import java.io.FileNotFoundException;
+
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +18,13 @@ import org.jlab.rec.rtpc.hit.Hit;
 import org.jlab.rec.rtpc.hit.HitReconstruction;
 import org.jlab.rec.rtpc.hit.PadHit;
 
+
+
+
 public class RTPCEngine extends ReconstructionEngine{
 
+	public int test = 1; 
+	
 	public RTPCEngine() {
 		super("RTPC","charlesg","3.0");
 	}
@@ -42,8 +49,12 @@ public class RTPCEngine extends ReconstructionEngine{
 		if(hits.size()==0 ) {
 			return true;
 		}
-		PadHit phit = new PadHit();
-		phit.bonus_shaping(hits);
+		if(event.hasBank("RTPC::adc") && test == 1)
+		{
+			test = 0;
+			PadHit phit = new PadHit();
+			phit.bonus_shaping(hits);
+		}
 		
 		HitReconstruction reco = new HitReconstruction();
 	
@@ -73,6 +84,8 @@ public class RTPCEngine extends ReconstructionEngine{
 
 		RTPCEngine en = new RTPCEngine();
 		en.init();
+		
+		
 		
 		HipoDataSource reader = new HipoDataSource();	
 		HipoDataSync writer = new HipoDataSync();
