@@ -36,11 +36,12 @@ public void bonus_shaping(List<Hit> rawHits)
 
   Map<Integer, double[]> R_adc = new HashMap<Integer, double[]>(); // Raw depositions for CellID, ADC
 
-  Vector PadN = new Vector();  // used to read only cell with signal, one entry for each hit         
-  Vector PadNum = new Vector();// used to read only cell with signal, one entry for each cell
-  Vector Pad = new Vector();
-  Vector ADC = new Vector();
-  Vector Time_o = new Vector();
+  Vector<Integer> PadN = new Vector<Integer>();  // used to read only cell with signal, one entry for each hit         
+  Vector<Integer> PadNum = new Vector<Integer>();// used to read only cell with signal, one entry for each cell
+  Vector<Integer> Pad = new Vector<Integer>();
+  Vector<Double> ADC = new Vector<Double>();
+  Vector<Double> Time_o = new Vector<Double>();
+  
   int count=0;
   double inte=0;
   double inte_tot; // integral of the signal in BinSize
@@ -61,6 +62,8 @@ public void bonus_shaping(List<Hit> rawHits)
  EmbeddedCanvas c1 = new EmbeddedCanvas();
  GraphErrors g1 = new GraphErrors();
  GraphErrors g2 = new GraphErrors();
+ 
+ F1D f1 = new F1D("f1", "[amp]*gaus(x,[mean],[sigma])",0,1);
  g1.setMarkerSize(0);
  g2.setMarkerSize(0);
 
@@ -103,6 +106,9 @@ public void bonus_shaping(List<Hit> rawHits)
   int CellID = 0; 
   double Time;
   double totEdep;
+  
+  //int init = 1; 
+  //int testid = 0; 
 //______________________________________________________________________________________________
 //  __________________________________________ Readings __________________________________________
 //______________________________________________________________________________________________
@@ -136,10 +142,16 @@ public void bonus_shaping(List<Hit> rawHits)
       for(Hit hit : rawHits){
 
     	 CellID = hit.get_cellID();
-    	 //System.out.println(CellID);
+    	 //if(CellID == 15257) System.out.println(CellID);
     	 Time = hit.get_Time();
     	 //if(CellID == 10449) System.out.println(Time);
     	 totEdep = hit.get_EdepTrue();
+    	 
+    	 /*if(init == 1)
+    	 {
+    		 testid = CellID;
+    		 init = 0; 
+    	 }*/
 
  // searches in PadN if CellID already exists
 
@@ -148,14 +160,14 @@ public void bonus_shaping(List<Hit> rawHits)
             valtest = R_adc.get(CellID);
             valtest[t] += EtoS(Time,t,totEdep);
             R_adc.put(CellID, valtest);
-            if(CellID == 10449) g1.addPoint(t, valtest[t],0,0);
+            //if(CellID == testid) g1.addPoint(t, valtest[t],0,0);
           }
         }
         else{ // first signal on this pad
           for(int t=0;t<TrigWindSize;t+=StepSize){
         	valtest[t] = EtoS(Time,t,totEdep);
             R_adc.put(CellID, valtest);
-            if(CellID == 10449) g1.addPoint(t, valtest[t],0,0);
+            //if(CellID == testid) g1.addPoint(t, valtest[t],0,0);
           }
           PadNum.add(CellID);
         }
@@ -163,12 +175,7 @@ public void bonus_shaping(List<Hit> rawHits)
         PadN.add(CellID);
 
        } // c
-      if(CellID == 10449)
-      {
-      c1.draw(g1);
-      j1.add(c1);
-      j1.setVisible(true);
-      }
+
   
 //--Signal created on pads with StepSize ns steps
 
@@ -178,27 +185,38 @@ public void bonus_shaping(List<Hit> rawHits)
 // Integrates it into BinSize long bins
 // Keeps only 1 bin over 3
 // Fits the results with the double Gaussian
-
+      //System.out.println(" ");
+//System.out.println(PadNum.get(0));
       inte=0;
-      for(int p=0;p<PadNum.size();p++){
+     for(int p=0;p<1;p++){ 
+    	//System.out.println(R_adc.size());
         inte_tot = 0;
-        for(int t=0;t<TrigWindSize;t+=StepSize){
+        for(int t=0;t<TrigWindSize;t+=StepSize){  
+        	
+        	if(t==0) inte += R_adc.get(PadNum.get(p))[t]*StepSize;
+        	else inte+=0.5*(R_adc.get(PadNum.get(p))[t-1]+R_adc.get(PadNum.get(p))[t])*StepSize;
+            inte_tot+=inte;
+        	
           if(t%BinSize==0 && t>0){ // integration over BinSize
             if(t%(BinSize*NBinKept)==0){ // one BinSize over NBinKept is read out, hence added to the histogram
-              g2.setPoint(t/(BinSize*NBinKept),t,inte);
-              inte_tot+=inte;
+              g1.addPoint(/*t/(BinSize*NBinKept),*/t,inte,0,0);
+              //System.out.println(t/(BinSize*NBinKept));
+              
               if(max_inte<inte){max_inte=inte; max_t=t;}       
             }
             inte=0;
           }
-          else inte+=0.5*(R_adc.get(PadNum.get(p))[t-1]+R_adc.get(PadNum.get(p))[t])*StepSize;
         }
-        F1D f1 = new F1D("f1", "[amp]*gaus(x,[mean],[sigma])",max_t-StepSize*4,max_t+StepSize*4);
-        f1.setParameter(0,5*max_inte);
-        f1.setParameter(1,max_t);
-        f1.setParameter(2, 165);
-        DataFitter.fit(f1, g2, "QER");
+
         
+        f1.setRange(max_t-StepSize*20,max_t+StepSize*20);
+        //f1.setRange(5400,6400);
+        f1.setParameter(0,1.5*max_inte);
+        f1.setParameter(1,max_t);
+        f1.setParameter(2, 155);
+        System.out.println(max_t-StepSize*4);        
+        DataFitter.fit(f1, g1, "QER");
+       //System.out.println(max_t-StepSize*4);
 //   debug->cd();
 //        g_pad_inte->Draw();
         //g2.Fit("mgaus","QER");
@@ -212,17 +230,26 @@ public void bonus_shaping(List<Hit> rawHits)
           Time_o.add(f1.getParameter(1));
           flag_event=true;
         }
-      /*
+             
+        //if(CellID == 10449)
+        //{
+            //System.err.println("test");
+        c1.draw(g1);
+        j1.add(c1);
+        j1.setVisible(true);
+        c1.save("/Users/dpaye001/Desktop/plot111.png");
+        //}
+
+      
         // Cleaning
         max_inte=0;
         max_t=0;
-        if(eve!=tree->GetEntries()-1){
-          for(int ii=g_pad_inte->GetN();ii>-1;ii--){
-            g_pad_inte->RemovePoint(ii);
-          }
-        }
-*/
-      }
+        //if(eve!=tree->GetEntries()-1){
+          //for(int ii=g_pad_inte->GetN();ii>-1;ii--){
+           // g_pad_inte->RemovePoint(ii);
+          //}
+        //}
+     } 
 //--each pad has its daq signal associated to it
 
 
@@ -259,7 +286,9 @@ public void bonus_shaping(List<Hit> rawHits)
 
 return 0;
 */
-    
+     
+
+
 }
 
 
