@@ -15,7 +15,9 @@ import org.jlab.io.hipo.HipoDataSync;
 import org.jlab.rec.rtpc.banks.HitReader;
 import org.jlab.rec.rtpc.banks.RecoBankWriter;
 import org.jlab.rec.rtpc.hit.Hit;
+import org.jlab.rec.rtpc.hit.HitParameters;
 import org.jlab.rec.rtpc.hit.HitReconstruction;
+import org.jlab.rec.rtpc.hit.PadFit;
 import org.jlab.rec.rtpc.hit.PadHit;
 
 
@@ -23,7 +25,8 @@ import org.jlab.rec.rtpc.hit.PadHit;
 
 public class RTPCEngine extends ReconstructionEngine{
 
-	public int test = 1; 
+	public int test = 1;
+	public HitParameters params = new HitParameters();
 	
 	public RTPCEngine() {
 		super("RTPC","charlesg","3.0");
@@ -49,12 +52,14 @@ public class RTPCEngine extends ReconstructionEngine{
 		if(hits.size()==0 ) {
 			return true;
 		}
-		if(event.hasBank("RTPC::adc") && test == 1)
-		{
+		//if(event.hasBank("RTPC::adc") && test == 1)
+		//{
 			test = 0;
 			PadHit phit = new PadHit();
-			phit.bonus_shaping(hits);
-		}
+			phit.bonus_shaping(hits,params);
+			PadFit pfit = new PadFit();
+			pfit.Fitting(params);
+		//}
 		
 		HitReconstruction reco = new HitReconstruction();
 	
