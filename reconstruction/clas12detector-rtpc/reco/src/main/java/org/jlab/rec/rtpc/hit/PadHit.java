@@ -17,7 +17,7 @@ double sigTelec = 5; // 5 ns uncertainty on the signal
 double sigTVdrift = 5; // 5 ns uncertainty on the
 Random noise = new Random();
 
-public void bonus_shaping(List<Hit> rawHits)
+public void bonus_shaping(List<Hit> rawHits, HitParameters params)
 //int main()
 {
 
@@ -26,21 +26,23 @@ public void bonus_shaping(List<Hit> rawHits)
 //  __________________________________________ Variables _________________________________________
 //______________________________________________________________________________________________
     
-
+	//HitParameters params = new HitParameters();
   
-  int StepSize = 10; // step size of the signal before integration (arbitrary value)
-  int BinSize = 40; // electronics integrates the signal over 40 ns
-  int NBinKept = 3; // only 1 bin over 3 is kept by the daq
-  int TrigWindSize = 10000; // Trigger window should be 10 micro
+  int StepSize = params.get_StepSize(); // step size of the signal before integration (arbitrary value)
+  int BinSize = params.get_BinSize(); // electronics integrates the signal over 40 ns
+  int NBinKept = params.get_NBinKept(); // only 1 bin over 3 is kept by the daq
+  int TrigWindSize = params.get_TrigWindSize(); // Trigger window should be 10 micro
   int NTrigSampl = TrigWindSize/BinSize; // number of time samples
 
-  Map<Integer, double[]> R_adc = new HashMap<Integer, double[]>(); // Raw depositions for CellID, ADC
+  HashMap<Integer, double[]> R_adc = params.get_R_adc(); // Raw depositions for CellID, ADC
 
   Vector<Integer> PadN = new Vector<Integer>();  // used to read only cell with signal, one entry for each hit         
-  Vector<Integer> PadNum = new Vector<Integer>();// used to read only cell with signal, one entry for each cell
-  Vector<Integer> Pad = new Vector<Integer>();
+  Vector<Integer> PadNum = new Vector<Integer>();// params.get_PadNum();// used to read only cell with signal, one entry for each cell
   Vector<Double> ADC = new Vector<Double>();
-  Vector<Double> Time_o = new Vector<Double>();
+  
+  Vector<Integer> Pad = params.get_Pad();
+  //Vector<Double> ADC = params.get_ADC();
+  Vector<Double> Time_o = params.get_Time_o();
   
   int count=0;
   double inte=0;
@@ -57,7 +59,7 @@ public void bonus_shaping(List<Hit> rawHits)
 //  ___________________________________ Canvas and histograms ____________________________________
 //______________________________________________________________________________________________
 
- JFrame j1 = new JFrame();
+ /*JFrame j1 = new JFrame();
  j1.setSize(800, 600);
  EmbeddedCanvas c1 = new EmbeddedCanvas();
  GraphErrors g1 = new GraphErrors();
@@ -65,7 +67,7 @@ public void bonus_shaping(List<Hit> rawHits)
  
  F1D f1 = new F1D("f1", "[amp]*gaus(x,[mean],[sigma])",0,1);
  g1.setMarkerSize(0);
- g2.setMarkerSize(0);
+ g2.setMarkerSize(0);*/
 
 
 //______________________________________________________________________________________________
@@ -106,6 +108,7 @@ public void bonus_shaping(List<Hit> rawHits)
   int CellID = 0; 
   double Time;
   double totEdep;
+  int eventnum = params.get_eventnum(); 
   
   //int init = 1; 
   //int testid = 0; 
@@ -125,50 +128,30 @@ public void bonus_shaping(List<Hit> rawHits)
     //ADC->clear();  // not reliable for now as the fit fails often
     //Time_o->clear();  
     IsRec=0;
-/*
-    evn_v = eve;
-    z_v = vz;
-    p_v = Math.sqrt(px*px+py*py+pz*pz);
-    pt_v = Math.sqrt(px*px+py*py);
-    th_v = Math.atan2(pz,pt_v);
-    phi_v = Math.atan2(py,px);
-    px_v = px;
-    py_v = py;
-    pz_v = pz;
-*/
+
   double valtest[] = new double[TrigWindSize];
 
 
       for(Hit hit : rawHits){
 
     	 CellID = hit.get_cellID();
-    	 //if(CellID == 15257) System.out.println(CellID);
     	 Time = hit.get_Time();
-    	 //if(CellID == 10449) System.out.println(Time);
     	 totEdep = hit.get_EdepTrue();
-    	 
-    	 /*if(init == 1)
-    	 {
-    		 testid = CellID;
-    		 init = 0; 
-    	 }*/
+
 
  // searches in PadN if CellID already exists
 
         if(PadN.contains(CellID)){ // this pad has already seen signal
-          for(int t=0;t<TrigWindSize;t+=StepSize){
-            valtest = R_adc.get(CellID);
-            valtest[t] += EtoS(Time,t,totEdep);
-            R_adc.put(CellID, valtest);
-            //if(CellID == testid) g1.addPoint(t, valtest[t],0,0);
+        	valtest = R_adc.get(CellID);
+        	for(int t=0;t<TrigWindSize;t+=StepSize){              	
+            R_adc.get(CellID)[t] += EtoS(Time,t,totEdep);                        
           }
         }
         else{ // first signal on this pad
           for(int t=0;t<TrigWindSize;t+=StepSize){
-        	valtest[t] = EtoS(Time,t,totEdep);
-            R_adc.put(CellID, valtest);
-            //if(CellID == testid) g1.addPoint(t, valtest[t],0,0);
+        	valtest[t] = EtoS(Time,t,totEdep);                       
           }
+          R_adc.put(CellID, valtest);
           PadNum.add(CellID);
         }
         
@@ -185,109 +168,17 @@ public void bonus_shaping(List<Hit> rawHits)
 // Integrates it into BinSize long bins
 // Keeps only 1 bin over 3
 // Fits the results with the double Gaussian
-      //System.out.println(" ");
-//System.out.println(PadNum.get(0));
-      inte=0;
-     for(int p=0;p<1;p++){ 
-    	//System.out.println(R_adc.size());
-        inte_tot = 0;
-        for(int t=0;t<TrigWindSize;t+=StepSize){  
-        	
-        	if(t==0) inte += R_adc.get(PadNum.get(p))[t]*StepSize;
-        	else inte+=0.5*(R_adc.get(PadNum.get(p))[t-1]+R_adc.get(PadNum.get(p))[t])*StepSize;
-            inte_tot+=inte;
-        	
-          if(t%BinSize==0 && t>0){ // integration over BinSize
-            if(t%(BinSize*NBinKept)==0){ // one BinSize over NBinKept is read out, hence added to the histogram
-              g1.addPoint(/*t/(BinSize*NBinKept),*/t,inte,0,0);
-              //System.out.println(t/(BinSize*NBinKept));
-              
-              if(max_inte<inte){max_inte=inte; max_t=t;}       
-            }
-            inte=0;
-          }
-        }
 
-        
-        f1.setRange(max_t-StepSize*20,max_t+StepSize*20);
-        //f1.setRange(5400,6400);
-        f1.setParameter(0,1.5*max_inte);
-        f1.setParameter(1,max_t);
-        f1.setParameter(2, 155);
-        System.out.println(max_t-StepSize*4);        
-        DataFitter.fit(f1, g1, "QER");
-       //System.out.println(max_t-StepSize*4);
-//   debug->cd();
-//        g_pad_inte->Draw();
-        //g2.Fit("mgaus","QER");
-//        gPad->Update();
-//        getchar();
-        // Filling output tree
-        //evn = eve;
-        if(0<f1.getParameter(1) && f1.getParameter(1)<10000){ // the fit is not robust for now
-          Pad.add(PadNum.get(p));
-          ADC.add(inte_tot);  // use the signal integral for now
-          Time_o.add(f1.getParameter(1));
-          flag_event=true;
-        }
-             
-        //if(CellID == 10449)
-        //{
-            //System.err.println("test");
-        c1.draw(g1);
-        j1.add(c1);
-        j1.setVisible(true);
-        c1.save("/Users/dpaye001/Desktop/plot111.png");
-        //}
+eventnum++;
+params.set_ADC(ADC);
+params.set_Pad(Pad);
+params.set_PadN(PadN);
+params.set_PadNum(PadNum);
+params.set_R_adc(R_adc);
+params.set_Time_o(Time_o);
+params.set_eventnum(eventnum);
 
-      
-        // Cleaning
-        max_inte=0;
-        max_t=0;
-        //if(eve!=tree->GetEntries()-1){
-          //for(int ii=g_pad_inte->GetN();ii>-1;ii--){
-           // g_pad_inte->RemovePoint(ii);
-          //}
-        //}
-     } 
-//--each pad has its daq signal associated to it
-
-
-//______________________________________________________________________________________________
-//  _________________________________________ Cleaning ___________________________________________
-//______________________________________________________________________________________________
-/*
-      if(eve!=tree->GetEntries()-1){
-        for(int ii=g_pad_inte->GetN();ii>-1;ii--){
-          g_pad_inte->RemovePoint(ii);
-        }
-      }
-
-      // Fills the output trees
-      if(flag_event==true) IsRec=1;
-
-    } 
-    else{ // CellID->size()==0
-      evn = eve;
-      Pad->push_back(-999);
-      ADC->push_back(0);  
-      Time_o->push_back(-999);
-      IsRec=0;
-    }
-
-    Rec->Fill();
-    Gen->Fill();
-
-
-
-  fout->Write();
-
-  delete fout;
-
-return 0;
-*/
-     
-
+//System.out.println(PadNum.size());
 
 }
 
