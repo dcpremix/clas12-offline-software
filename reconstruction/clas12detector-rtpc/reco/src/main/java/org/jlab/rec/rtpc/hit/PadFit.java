@@ -38,19 +38,16 @@ public class PadFit {
 		 JFrame j1 = new JFrame();
 		 j1.setSize(800, 600);
 		 
-		 //TCanvas c1 = new TCanvas("c1", 800, 600);
 		 
-		 //GraphErrors g2 = new GraphErrors();
 		 
 		 F1D f1 = new F1D("f1", "[amp]*gaus(x,[mean],[sigma])",0,1);
 		 //g1.setMarkerSize(0);
-		 //g2.setMarkerSize(0);
-		 //GraphErrors g1[] = new GraphErrors[PadNum.size()];
-    	 //EmbeddedCanvas c1[] = new EmbeddedCanvas[PadNum.size()];
+		
+		 
     	 GraphErrors g1 = new GraphErrors();
-    	 //GraphErrorsPlotter g1p = new GraphErrorsPlotter(g1);
+    	 
     	 EmbeddedCanvas c1 = new EmbeddedCanvas();
-    	 //TCanvas c1 = new TCanvas("c1", 800, 600);
+    	 
 
 		
 	      inte=0;
@@ -93,24 +90,14 @@ public class PadFit {
 	           Time_o.add(f1.getParameter(1));
 	           flag_event=true;
 	         }*/
-	         //g1.addPoint(1, 1, 0, 0);
-	         //if(CellID == 10449)
-	         //{
-	             //System.err.println("test");
+
+
 	         c1.draw(g1);
-	         
-	         //c1.draw(f1,"same");
+
 	         j1.add(c1);
 	         j1.setVisible(true);
 	         File dire = new File("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum);
-	         /*if(!dire.exists()){
-	        	 //boolean test = false;
-	        	 try{
-	        		 dire.mkdir();
-	        		 //test = true;
-	        	 }
-	        	 catch(SecurityException se){System.out.println("Could not make directory");}	     
-	         }*/
+
 	         dire.mkdir();
 	         
 	         c1.save("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum + "/pad" + PadNum.get(p) + ".png");
