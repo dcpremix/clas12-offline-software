@@ -35,92 +35,60 @@ public class PadFit {
 		boolean flag_event = false; 
 		int eventnum = params.get_eventnum();
 		
-		 JFrame j1 = new JFrame();
-		 j1.setSize(800, 600);
+		JFrame j1 = new JFrame();
+		GraphErrors g1 = new GraphErrors();   
+		g1.setMarkerSize(0);
+		EmbeddedCanvas c1 = new EmbeddedCanvas();
+		j1.setSize(800, 600);
 		 
 		 
 		 
-		 F1D f1 = new F1D("f1", "[amp]*gaus(x,[mean],[sigma])",0,1);
-		 //g1.setMarkerSize(0);
-		
-		 
-    	 GraphErrors g1 = new GraphErrors();
-    	 
-    	 EmbeddedCanvas c1 = new EmbeddedCanvas();
-    	 
-
-		
-	      inte=0;
-	      for(int p=0;p<PadNum.size();p++){ 
-
-	    	
-
-	    	  inte_tot = 0;
-	         for(int t=0;t<TrigWindSize;t+=StepSize){  
-	         	
-	         	//if(t==0) inte += R_adc.get(PadNum.get(p))[t]*StepSize;
-	         	if(t>0) inte+=0.5*(R_adc.get(PadNum.get(p))[t-1]+R_adc.get(PadNum.get(p))[t])*StepSize;
-
-	             inte_tot+=inte;
-	         	
-	           if(t%BinSize==0 && t>0){ // integration over BinSize
-	             if(t%(BinSize*NBinKept)==0){ // one BinSize over NBinKept is read out, hence added to the histogram
-	               g1.addPoint(t,inte,0,0);
-
-	               if(max_inte<inte){max_inte=inte; max_t=t;}       
-	             }
-	             inte=0;
-	           }
-	         }
-
-	         /*
-	         f1.setRange(max_t-StepSize*4,max_t+StepSize*4);
-	         f1.setRange(5400,6400);
-	         f1.setParameter(0,1.5*max_inte);
-	         f1.setParameter(1,max_t);
-	         f1.setParameter(2,155);*/
+		F1D f1 = new F1D("f1", "[amp]*gaus(x,[mean],[sigma])",0,1);
+				    	 		
+		inte=0;
+		for(int p=0;p<PadNum.size();p++){ 
+			//System.out.println(PadNum.size() + " " + eventnum);	    	
+			inte_tot = 0;
+			for(int t=0;t<TrigWindSize;t+=StepSize){  	         		         	
+				if(t>0) inte+=0.5*(R_adc.get(PadNum.get(p))[t-StepSize]+R_adc.get(PadNum.get(p))[t])*StepSize;	         	
+				inte_tot+=inte;	         	
+				if(t%BinSize==0 && t>0){ // integration over BinSize
+					if(t%(BinSize*NBinKept)==0){ // one BinSize over NBinKept is read out, hence added to the histogram
+						g1.addPoint(t,inte,0,0);							
+						if(max_inte<inte){max_inte=inte; max_t=t;}       
+					}	             
+					inte=0;
+				}
+			}
+ 
+			
+	        f1.setRange(max_t-StepSize*100,max_t+StepSize*100);
+	        //f1.setRange(5400,6400);
+	        f1.setParameter(0,1.5*max_inte);
+	        f1.setParameter(1,max_t);
+	        f1.setParameter(2,155);
        
-	         //DataFitter.fit(f1, g1, "QER");
+	        DataFitter.fit(f1, g1, "QER");
 	         
 
 /*
-	         if(0<f1.getParameter(1) && f1.getParameter(1)<10000){ // the fit is not robust for now
-	           Pad.add(PadNum.get(p));
+	        if(0<f1.getParameter(1) && f1.getParameter(1)<10000){ // the fit is not robust for now
+	          Pad.add(PadNum.get(p));
 	           ADC.add(inte_tot);  // use the signal integral for now
 	           Time_o.add(f1.getParameter(1));
 	           flag_event=true;
 	         }*/
 
-
-	         c1.draw(g1);
-
-	         j1.add(c1);
-	         j1.setVisible(true);
-	         File dire = new File("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum);
-
-	         dire.mkdir();
-	         
-	         c1.save("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum + "/pad" + PadNum.get(p) + ".png");
-	         //System.out.println(g1.getDataSize(p));
-	         //g1.reset();
-	         	
-	         
-	         //c1.clear();
-
-	         max_inte=0;
-	         max_t=0;
-
-	      } 
-		
-		
-		
-		
-		
-		
-		
-	}
-	
-	
-	
-	
+			c1.draw(g1);
+			j1.add(c1);
+			j1.setVisible(true);
+	        File dire = new File("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum);
+	        dire.mkdir();	         
+	        c1.save("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum + "/pad" + PadNum.get(p) + ".png");
+			max_inte=0;
+			max_t=0;
+			g1.reset();
+			c1.clear();
+		} 														
+	}				
 }
