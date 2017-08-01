@@ -81,9 +81,9 @@ public class RTPCEngine extends ReconstructionEngine{
 	
 	public static void main(String[] args) throws FileNotFoundException, EvioException{
 		
-		String inputFile = "/Users/dpaye001/Desktop/clas12-offline-software-master/working.hipo";
+		String inputFile = "/Users/dpaye001/Desktop/clas12-offline-software-master_OG/working.hipo";
 		//String inputFile = args[0];
-		String outputFile = "/Users/dpaye001/Desktop/clas12-offline-software-master/out_working.hipo";
+		String outputFile = "/Users/dpaye001/Desktop/clas12-offline-software-master_OG/out_working.hipo";
 		
 		System.err.println(" \n[PROCESSING FILE] : " + inputFile);
 
@@ -91,6 +91,8 @@ public class RTPCEngine extends ReconstructionEngine{
 		en.init();
 		
 		//some random comment
+		//some random comment again
+		
 		
 		HipoDataSource reader = new HipoDataSource();	
 		HipoDataSync writer = new HipoDataSync();
