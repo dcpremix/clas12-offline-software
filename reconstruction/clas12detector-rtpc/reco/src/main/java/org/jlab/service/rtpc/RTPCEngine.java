@@ -17,6 +17,7 @@ import org.jlab.rec.rtpc.banks.RecoBankWriter;
 import org.jlab.rec.rtpc.hit.Hit;
 import org.jlab.rec.rtpc.hit.HitParameters;
 import org.jlab.rec.rtpc.hit.HitReconstruction;
+import org.jlab.rec.rtpc.hit.PadAve;
 import org.jlab.rec.rtpc.hit.PadFit;
 import org.jlab.rec.rtpc.hit.PadHit;
 
@@ -57,8 +58,10 @@ public class RTPCEngine extends ReconstructionEngine{
 			test = 0;
 			PadHit phit = new PadHit();
 			phit.bonus_shaping(hits,params);
-			PadFit pfit = new PadFit();
-			pfit.Fitting(params);
+			//PadFit pfit = new PadFit();
+			//pfit.Fitting(params);
+			PadAve pave = new PadAve();
+			pave.TimeAverage(params);
 		//}
 		
 		HitReconstruction reco = new HitReconstruction();

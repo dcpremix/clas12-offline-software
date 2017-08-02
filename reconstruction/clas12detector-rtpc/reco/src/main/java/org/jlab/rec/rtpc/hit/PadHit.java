@@ -16,20 +16,13 @@ public PadHit(){}
 
 
 
-public void bonus_shaping(List<Hit> rawHits, HitParameters params)
-//int main()
-{
+public void bonus_shaping(List<Hit> rawHits, HitParameters params){
 
 
 //______________________________________________________________________________________________
 //  __________________________________________ Variables _________________________________________
 //______________________________________________________________________________________________
-    
-	//HitParameters params = new HitParameters();
-  
-
-	
-	
+    	
 	int StepSize = params.get_StepSize(); // step size of the signal before integration (arbitrary value)
   	int BinSize = params.get_BinSize(); // electronics integrates the signal over 40 ns
   	int NBinKept = params.get_NBinKept(); // only 1 bin over 3 is kept by the daq
@@ -53,33 +46,14 @@ public void bonus_shaping(List<Hit> rawHits, HitParameters params)
 //  __________________________________________ Openings __________________________________________
 //______________________________________________________________________________________________
 
- 
-
-
-  
-
-
-  
-
-
-  
-
-
-  // The root file contains a tree
-  // this tree will contain the hit pads and the signal
-
-
-
-
-  
-  	int CellID = 0; 
+   	int CellID = 0; 
   	double Time;
   	double totEdep;
   	int eventnum = params.get_eventnum(); 
   	eventnum++;
-  
-  //int init = 1; 
-  //int testid = 0; 
+  	double testsum = 0; 
+  	double testcount = 1; 
+
 //______________________________________________________________________________________________
 //  __________________________________________ Readings __________________________________________
 //______________________________________________________________________________________________
@@ -95,8 +69,6 @@ public void bonus_shaping(List<Hit> rawHits, HitParameters params)
     //ADC->clear();  // not reliable for now as the fit fails often
     //Time_o->clear();  
 
-    //double valtest[] = new double[TrigWindSize];
-  //double valtest2[] = new double[TrigWindSize];
 
 
   	for(Hit hit : rawHits){
@@ -104,43 +76,32 @@ public void bonus_shaping(List<Hit> rawHits, HitParameters params)
   		CellID = hit.get_cellID();
   		Time = hit.get_Time();
   		totEdep = hit.get_EdepTrue();
-    	 //System.out.println(eventnum + " " + totEdep);
-
 
  // searches in PadN if CellID already exists
 
         if(PadN.contains(CellID)){ // this pad has already seen signal
-        		//valtest = R_adc.get(CellID);
         		for(int t=0;t<TrigWindSize;t+=StepSize){     
-        			R_adc.get(CellID)[t] += EtoS(Time,t,totEdep);
-        			//valtest[t] += EtoS(Time,t,totEdep);                       
+        			R_adc.get(CellID)[t] += EtoS(Time,t,totEdep);               
         		}
-        		//R_adc.put(CellID, valtest);
-
         }
         
         else{ // first signal on this pad
-        		//double valtest[] = new double[TrigWindSize];
         		R_adc.put(CellID, new double[TrigWindSize]);
         		for(int t=0;t<TrigWindSize;t+=StepSize){
         			R_adc.get(CellID)[t] = EtoS(Time,t,totEdep);                       
         		}
-        		//R_adc.put(CellID, valtest);
         		PadNum.add(CellID);
-        }
-        
+        }       
         PadN.add(CellID);
+        if(CellID == 15157 && eventnum == 1){
+        	System.out.println(Time + " " + testcount);
+        	testsum+=Time;
+        	testcount++;
+        }
    } // c
-
+   if(eventnum == 1) System.out.println("Result " + testsum/(testcount-1));
       //--Signal created on pads with StepSize ns steps
 
-
-//--For each pad
-// Read the signal on it
-// Integrates it into BinSize long bins
-// Keeps only 1 bin over 3
-// Fits the results with the double Gaussian
-//if(PadN.contains(15949)) System.out.println("A " + eventnum + " " + R_adc.get(15949)[6000]);
 params.set_ADC(ADC);
 params.set_Pad(Pad);
 params.set_PadN(PadN);
@@ -148,8 +109,6 @@ params.set_PadNum(PadNum);
 params.set_R_adc(R_adc);
 params.set_Time_o(Time_o);
 params.set_eventnum(eventnum);
-	
-//System.out.println(PadNum.size());
 
 }
 
@@ -174,14 +133,12 @@ double EtoS(double tini, double t, double e_tot){
 double noise_elec(double tim){
 	Random noise = new Random();
 	double sigTelec = 5; // 5 ns uncertainty on the signal
-  //return Math.random().Gaus(tim,sigTelec);
 	return noise.nextGaussian()*sigTelec + tim;
 }
 
 double drift_V(double tim){
 	Random noise = new Random();
 	double sigTVdrift = 5; // 5 ns uncertainty on the
-  //return noise->Gaus(tim,sigTVdrift);
 	return noise.nextGaussian()*sigTVdrift + tim;
 }
 
