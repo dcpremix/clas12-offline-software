@@ -1,3 +1,11 @@
+// Author: David Payette and Gabriel Charles
+
+// This code creates a signal shape for each hit on a single pad, and then sums all signals on that pad and stores them
+// into a map called R_adc which uses the pad (cellID) as the key and returns an array which is organized by time bins.
+// All variables used in this code are stored and accessed in HitParameters.java which is instantiated in RTPCEngine.java.
+// This code is accessed once for each event, and then the signal shaping map is looped through and filled for all hits in that event.
+// The map is refreshed for each event. 
+
 package org.jlab.rec.rtpc.hit;
 import java.util.*;
 import org.jlab.groot.data.*;
@@ -93,13 +101,7 @@ public void bonus_shaping(List<Hit> rawHits, HitParameters params){
         		PadNum.add(CellID);
         }       
         PadN.add(CellID);
-        if(CellID == 15157 && eventnum == 1){
-        	System.out.println(Time + " " + testcount);
-        	testsum+=Time;
-        	testcount++;
-        }
-   } // c
-   if(eventnum == 1) System.out.println("Result " + testsum/(testcount-1));
+   }
       //--Signal created on pads with StepSize ns steps
 
 params.set_ADC(ADC);
@@ -135,13 +137,13 @@ double noise_elec(double tim){
 	double sigTelec = 5; // 5 ns uncertainty on the signal
 	return noise.nextGaussian()*sigTelec + tim;
 }
-
+/* Not used currently
 double drift_V(double tim){
 	Random noise = new Random();
 	double sigTVdrift = 5; // 5 ns uncertainty on the
 	return noise.nextGaussian()*sigTVdrift + tim;
 }
-
+*/ 
 
 
 
