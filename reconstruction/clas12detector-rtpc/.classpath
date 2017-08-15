@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="reco/src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="/Users/dpaye001/clas12-offline-software/coatjava/lib/clas/coat-libs-3.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="/Users/dpaye001/clas12-offline-software/lib/utils/clas-update-1.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/Users/dpaye001/clas12-offline-software/lib/utils/jclara-4.3-SNAPSHOT.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

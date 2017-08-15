@@ -47,7 +47,7 @@ public class PadAve {
 				}
 			}
 			weightave = sumnumer/sumdenom;
-			if(PadNum.get(p) == 15157) System.out.println(eventnum + " " + PadNum.get(p) + " " + weightave);
+			//if(PadNum.get(p) == 15157) System.out.println(eventnum + " " + PadNum.get(p) + " " + weightave);
 			sumnumer = 0;
 			sumdenom = 0;
 			weightave = 0;

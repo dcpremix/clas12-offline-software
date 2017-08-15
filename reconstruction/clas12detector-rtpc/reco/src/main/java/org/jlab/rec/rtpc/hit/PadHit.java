@@ -93,13 +93,13 @@ public void bonus_shaping(List<Hit> rawHits, HitParameters params){
         		PadNum.add(CellID);
         }       
         PadN.add(CellID);
-        if(CellID == 15157 && eventnum == 1){
+        /*if(CellID == 15157 && eventnum == 1){
         	System.out.println(Time + " " + testcount);
         	testsum+=Time;
         	testcount++;
-        }
+        }*/
    } // c
-   if(eventnum == 1) System.out.println("Result " + testsum/(testcount-1));
+   //if(eventnum == 1) System.out.println("Result " + testsum/(testcount-1));
       //--Signal created on pads with StepSize ns steps
 
 params.set_ADC(ADC);

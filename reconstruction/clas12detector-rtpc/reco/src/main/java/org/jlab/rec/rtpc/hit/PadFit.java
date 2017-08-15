@@ -83,8 +83,18 @@ public class PadFit {
 			j1.add(c1);
 			j1.setVisible(true);
 	        File dire = new File("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum);
-	        dire.mkdir();	         
+	        dire.mkdir();
+	        try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 	        c1.save("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum + "/pad" + PadNum.get(p) + ".png");
+	        try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			max_inte=0;
 			max_t=0;
 			g1.reset();
