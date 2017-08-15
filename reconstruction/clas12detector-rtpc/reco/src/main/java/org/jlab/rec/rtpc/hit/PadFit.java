@@ -1,3 +1,10 @@
+//Author: David Payette and Gabriel Charles
+
+//This code uses the map created in PadHit.java to access the signals for a given pad (cellID).
+//The code is run once per event and loops over all Pads stored in the PadNum vector.
+//For a given pad, the map returns an array which is looped over and integrated bin by bin.
+//This integral by time bin is then plotted and fit. The fit function should be user-defined.
+
 package org.jlab.rec.rtpc.hit;
 import javax.swing.JFrame;
 import org.jlab.groot.data.*;
@@ -16,7 +23,7 @@ public class PadFit {
 	
 	public void Fitting(HitParameters params){
 		
-		//System.out.println("test");
+		
 		int StepSize = params.get_StepSize(); // step size of the signal before integration (arbitrary value)
 		int BinSize = params.get_BinSize(); // electronics integrates the signal over 40 ns
 		int NBinKept = params.get_NBinKept(); // only 1 bin over 3 is kept by the daq
@@ -63,7 +70,6 @@ public class PadFit {
  
 			
 	        f1.setRange(max_t-StepSize*100,max_t+StepSize*100);
-	        //f1.setRange(5400,6400);
 	        f1.setParameter(0,1.5*max_inte);
 	        f1.setParameter(1,max_t);
 	        f1.setParameter(2,155);
@@ -82,19 +88,13 @@ public class PadFit {
 			c1.draw(g1);
 			j1.add(c1);
 			j1.setVisible(true);
-	        File dire = new File("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum);
-	        dire.mkdir();
-	        try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-	        c1.save("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum + "/pad" + PadNum.get(p) + ".png");
-	        try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+	        	File dire = new File("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum);
+	       	 	dire.mkdir();
+			try{ Thread.sleep(1000); } //the sleep time can be modified as needed. Will throw ConcurrentModificationException without
+			catch(InterruptedException e){return System.out.println("main thread interrupted");}
+	        	c1.save("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum + "/pad" + PadNum.get(p) + ".png");
+			try{ Thread.sleep(1000); }
+			catch(InterruptedException e){System.out.println("main thread interrupted");}
 			max_inte=0;
 			max_t=0;
 			g1.reset();
