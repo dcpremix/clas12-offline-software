@@ -7,6 +7,9 @@
 // The map is refreshed for each event. 
 
 package org.jlab.rec.rtpc.hit;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import org.jlab.groot.data.*;
 import org.jlab.groot.graphics.*;
@@ -37,7 +40,8 @@ public void bonus_shaping(List<Hit> rawHits, HitParameters params){
   	int TrigWindSize = params.get_TrigWindSize(); // Trigger window should be 10 micro
  	int NTrigSampl = TrigWindSize/BinSize; // number of time samples
 
-  	HashMap<Integer, double[]> R_adc = params.get_R_adc(); // Raw depositions for CellID, ADC
+  	HashMap<Integer, double[]> R_adc = params.get_R_adc();// Raw depositions for CellID, ADC
+  	HashMap<Integer, Vector<Double>> TimeMap = params.get_TimeMap();
 
   	Vector<Integer> PadN = params.get_PadN();  // used to read only cell with signal, one entry for each hit         
   	Vector<Integer> PadNum = params.get_PadNum();// used to read only cell with signal, one entry for each cell
@@ -73,6 +77,7 @@ public void bonus_shaping(List<Hit> rawHits, HitParameters params){
     R_adc.clear(); // Raw depositions for CellID, adc
     PadN.clear();
     PadNum.clear();
+    
     //Pad->clear();
     //ADC->clear();  // not reliable for now as the fit fails often
     //Time_o->clear();  
@@ -85,16 +90,32 @@ public void bonus_shaping(List<Hit> rawHits, HitParameters params){
   		Time = hit.get_Time();
   		totEdep = hit.get_EdepTrue();
 
+  		/*try {
+  			
+       	 	File out = new File("/Users/dpaye001/Desktop/FileOutput/event" + eventnum + "/");
+       	 	if(!out.exists())
+       	 	{out.mkdirs();}
+			FileWriter write = new FileWriter("/Users/dpaye001/Desktop/FileOutput/event" + eventnum + "/" + "timetrue.xls",true);
+  			write.write(Time + "\t" + CellID + "\r\n");
+  			write.close();
+  		} catch (IOException e) {
+  			// TODO Auto-generated catch block
+  			e.printStackTrace();
+  		}*/
+
  // searches in PadN if CellID already exists
 
         if(PadN.contains(CellID)){ // this pad has already seen signal
         		for(int t=0;t<TrigWindSize;t+=StepSize){     
         			R_adc.get(CellID)[t] += EtoS(Time,t,totEdep);               
         		}
+        		TimeMap.get(CellID).add(Time);
         }
         
         else{ // first signal on this pad
         		R_adc.put(CellID, new double[TrigWindSize]);
+        		TimeMap.put(CellID, new Vector<Double>());
+        		TimeMap.get(CellID).add(Time);
         		for(int t=0;t<TrigWindSize;t+=StepSize){
         			R_adc.get(CellID)[t] = EtoS(Time,t,totEdep);                       
         		}
@@ -111,6 +132,7 @@ params.set_PadNum(PadNum);
 params.set_R_adc(R_adc);
 params.set_Time_o(Time_o);
 params.set_eventnum(eventnum);
+params.set_TimeMap(TimeMap);
 
 }
 

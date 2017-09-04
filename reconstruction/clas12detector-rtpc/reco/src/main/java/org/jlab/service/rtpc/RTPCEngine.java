@@ -83,7 +83,7 @@ public class RTPCEngine extends ReconstructionEngine{
 	}
 	
 	public static void main(String[] args) throws FileNotFoundException, EvioException{
-		
+		//double starttime = System.nanoTime();
 		String inputFile = "/Users/dpaye001/Desktop/clas12-offline-software-master_OG/working.hipo";
 		//String inputFile = args[0];
 		String outputFile = "/Users/dpaye001/Desktop/clas12-offline-software-master_OG/out_working.hipo";
@@ -109,5 +109,6 @@ public class RTPCEngine extends ReconstructionEngine{
 
 		}
 		writer.close();
+		//System.out.println(System.nanoTime() - starttime);
 	}
 }

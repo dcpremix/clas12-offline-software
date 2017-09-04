@@ -1,5 +1,8 @@
 package org.jlab.rec.rtpc.hit;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -22,7 +25,9 @@ public class PadAve {
 		double sumnumer = 0; 
 		double sumdenom = 0;
 		double weightave = 0;
+		double timesum = 0;
 		HashMap<Integer, double[]> R_adc = params.get_R_adc();
+		HashMap<Integer, Vector<Double>> TimeMap = params.get_TimeMap();
 		Vector<Integer> PadNum = params.get_PadNum();
 		Vector<Integer> PadN = params.get_PadN();
 		Vector<Integer> Pad = params.get_Pad();
@@ -30,6 +35,10 @@ public class PadAve {
 		Vector<Double> Time_o = params.get_Time_o();
 		boolean flag_event = false; 
 		int eventnum = params.get_eventnum();
+		try{
+			FileWriter write2 = new FileWriter("/Users/dpaye001/Desktop/FileOutput/Output.txt",true);
+			//write2.write("Event Number" + "\t" + "Pad Number" + "\t" + "Time Value for each bin" + "\t" + "ADC value for each bin" + "\r\n");
+
 		
 		inte=0;
 		for(int p=0;p<PadNum.size();p++){ 	    	
@@ -42,17 +51,43 @@ public class PadAve {
 						if(max_inte<inte){max_inte=inte; max_t=t;}  
 						sumnumer+=inte*t;
 						sumdenom+=inte;
+
+							write2.write(eventnum + "\t" + PadNum.get(p) + "\t" + t + "\t" + inte + "\r\n");
+							//System.out.println(eventnum + "\t" + PadNum.get(p) + "\t" + t + "\t" + inte + "\r\n");
+						
 					}	             
 					inte=0;
 				}
 			}
 			weightave = sumnumer/sumdenom;
-			//if(PadNum.get(p) == 15157) System.out.println(eventnum + " " + PadNum.get(p) + " " + weightave);
+			for(int t=0; t<TimeMap.get(PadNum.get(p)).size(); t++)
+			{	
+				timesum += TimeMap.get(PadNum.get(p)).get(t);
+			}
+				
+			//try {
+	       	// 	File out = new File("/Users/dpaye001/Desktop/FileOutput/event" /*+ eventnum */+ "/");
+	       	// 	if(!out.exists())
+	       	// 	{out.mkdirs();}
+			//	FileWriter write = new FileWriter("/Users/dpaye001/Desktop/FileOutput/event" /*+ eventnum */+ "/" + "timetest.xls",true);
+			//	write.write(weightave + "\t" + timesum/(TimeMap.get(PadNum.get(p)).size()) + "\t" + PadNum.get(p) + "\r\n");
+			//	write.close();
+				
+				
+			//} catch (IOException e) {
+				
+			//	e.printStackTrace();
+			//}
+			//System.out.println(TimeMap.get(PadNum.get(p)).size());
 			sumnumer = 0;
 			sumdenom = 0;
 			weightave = 0;
+			timesum = 0;
 		}
-		
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 }

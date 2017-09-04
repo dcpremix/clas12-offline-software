@@ -45,6 +45,9 @@ public class PadFit {
 		JFrame j1 = new JFrame();
 		GraphErrors g1 = new GraphErrors();   
 		g1.setMarkerSize(0);
+		g1.setTitleX("Time(ns)");
+		g1.setTitleY("ADC");
+		g1.setMarkerSize(3);
 		EmbeddedCanvas c1 = new EmbeddedCanvas();
 		j1.setSize(800, 600);
 		 
@@ -68,13 +71,13 @@ public class PadFit {
 				}
 			}
  
-			
+			/*
 	        f1.setRange(max_t-StepSize*100,max_t+StepSize*100);
 	        f1.setParameter(0,1.5*max_inte);
 	        f1.setParameter(1,max_t);
 	        f1.setParameter(2,155);
        
-	        DataFitter.fit(f1, g1, "QER");
+	        DataFitter.fit(f1, g1, "QER");*/
 	         
 
 /*
@@ -91,7 +94,7 @@ public class PadFit {
 	        	File dire = new File("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum);
 	       	 	dire.mkdir();
 			try{ Thread.sleep(1000); } //the sleep time can be modified as needed. Will throw ConcurrentModificationException without
-			catch(InterruptedException e){return System.out.println("main thread interrupted");}
+			catch(InterruptedException e){System.out.println("main thread interrupted");}
 	        	c1.save("/Users/dpaye001/Desktop/PlotOutput/event" + eventnum + "/pad" + PadNum.get(p) + ".png");
 			try{ Thread.sleep(1000); }
 			catch(InterruptedException e){System.out.println("main thread interrupted");}
