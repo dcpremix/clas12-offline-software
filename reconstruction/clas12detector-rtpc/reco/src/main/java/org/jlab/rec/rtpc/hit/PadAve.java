@@ -33,16 +33,19 @@ public class PadAve {
 		Vector<Integer> Pad = params.get_Pad();
 		Vector<Double> ADC = params.get_ADC();
 		Vector<Double> Time_o = params.get_Time_o();
+		Vector<Double> weightavevec = new Vector<Double>();
+		Vector<Double> maxinte = new Vector<Double>();
 		boolean flag_event = false; 
 		int eventnum = params.get_eventnum();
-		try{
-			FileWriter write2 = new FileWriter("/Users/dpaye001/Desktop/FileOutput/Output.txt",true);
+		//try{
+			//FileWriter write2 = new FileWriter("/Users/davidpayette/Documents/FileOutput/Output.txt",true);
 			//write2.write("Event Number" + "\t" + "Pad Number" + "\t" + "Time Value for each bin" + "\t" + "ADC value for each bin" + "\r\n");
 
 		
 		inte=0;
 		for(int p=0;p<PadNum.size();p++){ 	    	
 			inte_tot = 0;
+			max_inte = 0;
 			for(int t=0;t<TrigWindSize;t+=StepSize){  	         		         	
 				if(t>0) inte+=0.5*(R_adc.get(PadNum.get(p))[t-StepSize]+R_adc.get(PadNum.get(p))[t])*StepSize;	         	
 				inte_tot+=inte;	         	
@@ -51,14 +54,15 @@ public class PadAve {
 						if(max_inte<inte){max_inte=inte; max_t=t;}  
 						sumnumer+=inte*t;
 						sumdenom+=inte;
-
-							write2.write(eventnum + "\t" + PadNum.get(p) + "\t" + t + "\t" + inte + "\r\n");
+						
+							//write2.write(eventnum + "\t" + PadNum.get(p) + "\t" + t + "\t" + inte + "\r\n");
 							//System.out.println(eventnum + "\t" + PadNum.get(p) + "\t" + t + "\t" + inte + "\r\n");
 						
 					}	             
 					inte=0;
 				}
 			}
+			
 			weightave = sumnumer/sumdenom;
 			for(int t=0; t<TimeMap.get(PadNum.get(p)).size(); t++)
 			{	
@@ -79,15 +83,20 @@ public class PadAve {
 			//	e.printStackTrace();
 			//}
 			//System.out.println(TimeMap.get(PadNum.get(p)).size());
+			weightavevec.add(weightave);
+			maxinte.add(max_inte);
 			sumnumer = 0;
 			sumdenom = 0;
 			weightave = 0;
 			timesum = 0;
+			//write2.close();
 		}
-		} catch (IOException e1) {
+		params.set_weightave(weightavevec);
+		params.set_maxinte(maxinte);
+		//} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		//	e1.printStackTrace();
+		//}
 	}
 
 }

@@ -1,6 +1,7 @@
 package org.jlab.rec.rtpc.hit;
 
 import java.util.List;
+import java.util.Vector;
 
 public class HitReconstruction {
 
@@ -8,18 +9,25 @@ public class HitReconstruction {
 		// TODO Auto-generated constructor stub
 	}
 
-	public void Reco(List<Hit> rawHits) {
-		
-		for(Hit hit : rawHits) {
-			
+	public void Reco(HitParameters params) {
+		Vector<Integer> PadNum = params.get_PadNum();
+		Vector<Double> weightave = params.get_weightave();
+		Vector<Double> maxinte = params.get_maxinte();
+		Vector<Double> TimeVec = new Vector<Double>();
+		Vector<Double> XVec = new Vector<Double>();
+		Vector<Double> YVec = new Vector<Double>();
+		Vector<Double> ZVec = new Vector<Double>();
+		int p = 0;
+		//for(Hit hit : rawHits) {
+		for(p = 0; p<PadNum.size(); p++)	{
 			//reco here
 			
-			int cellID = hit.get_cellID();
-			double Time = hit.get_Time();
-			double Edep = hit.get_EdepTrue();
-			double X = hit.get_PosXTrue();
-			double Y = hit.get_PosYTrue();
-			double Z = hit.get_PosZTrue();
+			int cellID = PadNum.get(p);
+			double Time = weightave.get(p);
+			//double Edep = maxinte.get(p);
+			//double X = hit.get_PosXTrue();
+			//double Y = hit.get_PosYTrue();
+			//double Z = hit.get_PosZTrue();
 			
 			
 			//char filename[100];
@@ -28,7 +36,7 @@ public class HitReconstruction {
 			double PAD_W = 2.79; // in mm
 			double PAD_S = 80.0; //in mm
 	        double PAD_L = 4.0; // in mm
-		    double RTPC_L=400.0; // in mm
+		    double RTPC_L = 400.0; // in mm
 			    
 		    double Num_of_Rows = (2.0*(Math.PI)*PAD_S)/PAD_W;
 	        double Num_of_Cols = RTPC_L/PAD_L;
@@ -95,10 +103,10 @@ public class HitReconstruction {
 		           
 		           // generated position of ionization in phi
 
-		           phi_pos = Math.atan2(Y, X);
+		           //phi_pos = Math.atan2(Y, X);
 		           
 		           // generated position of ionization in s
-		           r_pos=Math.sqrt(((X)*(X))+((Y)*(Y)));
+		           //r_pos=Math.sqrt(((X)*(X))+((Y)*(Y)));
 
 		           
 		           // ------------------ find z and phi of pad from CellID ------------------
@@ -150,31 +158,47 @@ public class HitReconstruction {
 		           z_rec=z_pad-dz;
 		           
 		           // x,y,z pos of pad hit
-		           x_pad=(PAD_S)*(Math.cos(phi_pad));
-		           y_pad=(PAD_S)*(Math.sin(phi_pad));
+		           //x_pad=(PAD_S)*(Math.cos(phi_pad));
+		           //y_pad=(PAD_S)*(Math.sin(phi_pad));
 		           
 		           // actual position on pad of hits
-		           phi_hit=phi_rad-(row*phi_per_pad);
-		           z_hit=Z-z0-(col*PAD_L)-z_shift;
+		           //phi_hit=phi_rad-(row*phi_per_pad);
+		           //z_hit=Z-z0-(col*PAD_L)-z_shift;
 		           
 		           // find differences (delta = generated-reconstructed)
-		           delta_x=X-x_rec;
-		           delta_y=Y-y_rec;
-		           delta_z=Z-z_rec;
-		           delta_r=r_pos-r_rec;
-		           delta_phi = phi_pos-phi_rec;
+		           //delta_x=X-x_rec;
+		           //delta_y=Y-y_rec;
+		           //delta_z=Z-z_rec;
+		           //delta_r=r_pos-r_rec;
+		           //delta_phi = phi_pos-phi_rec;
 
 
 		       
 		       
-		    			hit.set_cellID(cellID);
+		    			/*hit.set_cellID(cellID);
 		    			hit.set_Time(t_s2pad);
 		    			hit.set_Edep(Edep);
 		    			hit.set_PosX(x_rec);
 		    			hit.set_PosY(y_rec);
-		    			hit.set_PosZ(z_rec);
+		    			hit.set_PosZ(z_rec);*/
+		           TimeVec.add(t_s2pad);
+		           XVec.add(x_rec);
+		           YVec.add(y_rec);
+		           ZVec.add(z_rec);
+		           
+		           
 		    			
 		    			
 		}
+		params.set_time(TimeVec);
+		params.set_XVec(XVec);
+		params.set_YVec(YVec);
+		params.set_ZVec(ZVec);
+		//System.out.println(XVec.size() + " " + PadNum.size());
+		//XVec.clear();
+		//YVec.clear();
+		//ZVec.clear();
+		//TimeVec.clear();
+		
 	}
 }
