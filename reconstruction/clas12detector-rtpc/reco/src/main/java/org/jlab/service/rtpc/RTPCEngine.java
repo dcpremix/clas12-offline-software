@@ -91,7 +91,7 @@ public class RTPCEngine extends ReconstructionEngine{
 	
 	public static void main(String[] args) throws FileNotFoundException, EvioException{
 		//double starttime = System.nanoTime();
-		String inputFile = "/Users/davidpayette/Documents/clas12-offline-software/tout.hipo";
+		String inputFile = "/Users/davidpayette/Desktop/newcoattest/clara/installation/plugins/clas12/take133.hipo";
 		//String inputFile = args[0];
 		String outputFile = "/Users/davidpayette/Documents/clas12-offline-software/tout_working.hipo";
 		

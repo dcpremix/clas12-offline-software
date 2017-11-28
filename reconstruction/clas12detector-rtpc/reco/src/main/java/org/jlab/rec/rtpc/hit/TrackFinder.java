@@ -45,6 +45,16 @@ public class TrackFinder {
 		double b = 0;
 		int adjthresh = 2;
 		int event = params.get_eventnum();
+		double time1 = System.currentTimeMillis();
+		
+		//set variables for timing cut
+		int tmin = 0; //min timing in ns
+		int trange = 9000; //added to min to calculate max in ns
+		int tmax = tmin+trange;
+		
+		double PAD_W = 2.79; // in mm
+		double PAD_S = 80.0; //in mm
+		double Num_of_Rows = (2.0*(Math.PI)*PAD_S)/PAD_W;
 		
 		//g.setTitleX("Phi");
 		//g.setTitleY("Z");
@@ -68,10 +78,9 @@ public class TrackFinder {
 				Pad = PadNum.get(p);
 				//System.out.println(Pad + " " + t);
 				ADC = ADCMap.get(Pad)[t];
-				
 				//only pads which have an ADC value above threshold will be assigned a TID
 				if(ADC > thresh)
-				{					
+				{	
 					//returns the row and column of the current Pad
 					PadPhi = PadPhi(Pad);
 					PadZ = PadZ(Pad);
@@ -106,6 +115,18 @@ public class TrackFinder {
 									{
 										checkpadphiprev = PadPhi(TIDMap.get(TID).get(t-StepSize).get(padindex));
 										checkpadzprev = 	PadZ(TIDMap.get(TID).get(t-StepSize).get(padindex));
+										
+										if(Math.abs(checkpadphiprev - PadPhi) >= (Num_of_Rows - adjthresh))
+										{
+											if(checkpadphiprev > PadPhi)
+											{
+												checkpadphiprev -= Num_of_Rows;
+											}
+											else
+											{
+												PadPhi -= Num_of_Rows;
+											}
+										}
 										//System.out.println("Previous time slice " + PadPhi + " " + PadZ + " " + " " + checkpadphiprev + " " + checkpadzprev);
 										if((Math.abs(checkpadphiprev-PadPhi) <= adjthresh && Math.abs(checkpadzprev - PadZ) <= adjthresh))
 										{
@@ -120,6 +141,18 @@ public class TrackFinder {
 								{
 									checkpadphi = PadPhi(TIDMap.get(TID).get(t).get(padindex));								
 									checkpadz = 	PadZ(TIDMap.get(TID).get(t).get(padindex));
+									
+									if(Math.abs(checkpadphi - PadPhi) >= (Num_of_Rows - adjthresh))
+									{
+										if(checkpadphi > PadPhi)
+										{
+											checkpadphi -= Num_of_Rows;
+										}
+										else
+										{
+											PadPhi -= Num_of_Rows;
+										}
+									}
 									//System.out.println("Current time slice " + PadPhi + " " + PadZ + " " + " " + checkpadphi + " " + checkpadz);
 									//Check current time slice for adjacency
 									if((Math.abs(checkpadphi-PadPhi) <= adjthresh) && (Math.abs(checkpadz - PadZ) <= adjthresh))
@@ -179,24 +212,62 @@ public class TrackFinder {
 				}
 			}
 		}
-		
-		System.out.println(maxconcpads + " " + maxconctime + " " + TIDVec.size());
+		int tlargest = 0;
+		System.out.println("before " + TIDMap.size());
+		int loopsize = TIDMap.size();
+		for(int testTID = 1; testTID <= loopsize; testTID++)
+		{
+			for(int t = 0; t < TrigWindSize; t += StepSize)
+			{
+				for(int pad = 0; pad < TIDMap.get(testTID).get(t).size(); pad++)
+				{
+					if(t > tlargest)
+					{
+						tlargest = t;
+					}
+					if(t>4000)
+					{
+						//System.out.println(pad + " " + t);
+					}
+				}
+			}
+			//System.out.println(tlargest);
+			if(tlargest < tmin || tlargest > tmax)
+			{
+				TIDMap.remove(testTID);
+				//graphmap.remove(testTID);
+				
+			}
+			tlargest = 0;
+		}
+		//System.out.println(tlargest);
+		int color = 1;
+		int style = 1;
+		System.out.println("after " + TIDMap.size());
+		//System.out.println(maxconcpads + " " + maxconctime + " " + TIDVec.size());
 		if(draw == true)
 		{
-			for(int i = 1; i <= TIDMap.size(); i++)
+			for(int i = 1; i <= graphmap.size(); i++)
 			{
-				graphmap.get(i).setMarkerColor(i);
-				graphmap.get(i).setMarkerSize(3);
-				c.draw(graphmap.get(i),"same");
+				if(TIDMap.containsKey(i))
+				{
+					graphmap.get(i).setMarkerColor(color);
+					graphmap.get(i).setMarkerSize(3);
+					graphmap.get(i).setMarkerStyle(style);
+					c.draw(graphmap.get(i),"same");
+					color++;
+					style++;
+				}
 			}
-				j.add(c);
-				j.setVisible(true);
+			j.add(c);
+			j.setVisible(true);
 		}
 		write2.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//System.out.println(System.currentTimeMillis()-time1);
 	}
 	
 	private double PadPhi(int cellID) {
